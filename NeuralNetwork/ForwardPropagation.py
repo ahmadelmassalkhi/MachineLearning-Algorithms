@@ -22,15 +22,10 @@ class Layer:
         self.biases = np.zeros(nbOfOutputs)
         self.weights = 0.01 * np.random.randn(nbOfInputs, nbOfOutputs)
 
-    def forward(self, X:np.array):
-        # incase of single-batch inputs
-        if len(X.shape)==1 and len(X)!=self.nbOfInputs:
-            raise ValueError(f'Input X must have dimensions: ({self.nbOfInputs},)')
-        
-        # incase of multi-batch inputs
-        if len(X.shape)>1 and X.shape[1] != self.nbOfInputs:
+    def forward(self, X):
+        # validate X dimensions
+        if X.shape[-1] != self.nbOfInputs:
             raise ValueError(f'Input X must have dimensions: (any, {self.nbOfInputs})')
-        
         self.output = np.dot(X, self.weights) + self.biases
     
     
