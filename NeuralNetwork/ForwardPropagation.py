@@ -4,8 +4,8 @@ from nnfs.datasets import spiral_data
 nnfs.init()
 
 
-n_classes = 3 # number of different outputs (example: cat, dog, human...)
-batches, expected_outputs = spiral_data(2, n_classes)
+# n_classes = 3 # number of different outputs (example: cat, dog, human...)
+# batches, expected_outputs = spiral_data(1, n_classes)
 
 
 class NeuralNetwork:
@@ -23,11 +23,20 @@ class Layer:
         self.weights = 0.01 * np.random.randn(nbOfInputs, nbOfOutputs)
 
     def forward(self, X:np.array):
+        # incase of single-batch inputs
+        if len(X.shape)==1 and len(X)!=self.nbOfInputs:
+            raise ValueError(f'Input X must have dimensions: ({self.nbOfInputs},)')
+        
+        # incase of multi-batch inputs
         if len(X.shape)>1 and X.shape[1] != self.nbOfInputs:
             raise ValueError(f'Input X must have dimensions: (any, {self.nbOfInputs})')
+        
         self.output = np.dot(X, self.weights) + self.biases
-        return self.output
     
+    
+batches = np.array([[1, 2, 3, 4],
+                    [5, 6, 7, 8],
+                    [9, 10, 11, 12]])
 
 layer1 = Layer(batches.shape[1], 3)
 layer1.forward(batches)
