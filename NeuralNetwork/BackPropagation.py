@@ -32,7 +32,7 @@ class Layer:
         self.biases = np.zeros(nbOfOutputs)
         self.weights = np.random.randn(nbOfInputs, nbOfOutputs) * np.sqrt(2 / nbOfInputs)
 
-    def forward(self, X:np.array):
+    def forward(self, X):
         self.output = np.dot(X, self.weights) + self.biases
         self.inputs = X
     
