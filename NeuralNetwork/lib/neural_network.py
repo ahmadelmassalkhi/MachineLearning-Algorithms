@@ -56,7 +56,8 @@ class NeuralNetwork:
         self.activationN.forward(self.layerN.output)
         
         self.output_confidence = np.max(self.activationN.output, axis=1)
-        return np.argmax(self.activationN.output, axis=1)
+        self.output = np.argmax(self.activationN.output, axis=1)
+        return self.output
     
 
     # performs full propagation until reaching a target-confidence
@@ -87,7 +88,7 @@ class NeuralNetwork:
             # print stats
             confidence = np.average(self.activationN.output[range(len(labels)), labels])
             print(f'Iteration {i+1}: Average Correct Confidence = {confidence}')
-
+            i+=1
 
     def save(self):
         # Save layers to a file (to save their weights & biases)

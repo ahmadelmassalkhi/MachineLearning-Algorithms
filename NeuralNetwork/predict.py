@@ -26,3 +26,4 @@ def plot_image(image_matrix, prediction):
 nn = NeuralNetwork(model_path='model.pkl')
 image = nn.prepare_image(get_nth_png())
 nn.plot_image(image, nn.forward(image)[0])
+print(nn.output_confidence[0])
