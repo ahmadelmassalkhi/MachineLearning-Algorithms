@@ -1,19 +1,22 @@
 import numpy as np
 
+
 class Layer:
     def __init__(self, nbOfInputs:int, nbOfOutputs:int) -> None:
+        self.lr = 0.01 # constant learning rate
         self.nbOfInputs = nbOfInputs
         self.nbOfOutputs = nbOfOutputs
-        self.lr = 0.01 # constant learning rate
         
         # initialize
         self.biases = np.zeros(nbOfOutputs)
         self.weights = np.random.randn(nbOfInputs, nbOfOutputs) * np.sqrt(2 / nbOfInputs)
 
+
     def forward(self, X):
         self.output = np.dot(X, self.weights) + self.biases
         self.inputs = X
     
+
     def backward(self, dLoss_dNeurons):
         # compute gradients
         self.dLoss_dWeights = np.dot(self.inputs.T, dLoss_dNeurons)
