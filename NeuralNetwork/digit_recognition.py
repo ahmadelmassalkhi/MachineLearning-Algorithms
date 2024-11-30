@@ -105,7 +105,7 @@ class NeuralNetwork:
 
     def plot_image(self, image_matrix:np.ndarray, prediction:int):
         # Plot the first image in the test set and its predicted label
-        plt.imshow(image_matrix, cmap=plt.cm.binary)
+        plt.imshow(image_matrix, cmap='gray')
         plt.title(f"Predicted: {prediction}")
         plt.show()
         
