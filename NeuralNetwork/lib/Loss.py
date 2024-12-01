@@ -9,9 +9,6 @@ class Loss:
 
 class CategoricalCrossEntropy(Loss):
     def forward(self, inputs, y_real):
-        if y_real.shape[-1] != inputs.shape[0]: 
-            raise ValueError(f'Incompatible shapes of predicted:real as {inputs.shape}:{y_real.shape}')
-
         # incase of one hot encoding
         if y_real.shape != inputs.shape:
             y_real = np.eye(inputs.shape[1])[y_real]

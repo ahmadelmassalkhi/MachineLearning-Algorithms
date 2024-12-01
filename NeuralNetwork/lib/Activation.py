@@ -15,10 +15,10 @@ class ReLU(Activation):
     def derivative(self, X):
         return np.where(X>0, 1, 0)
 
-    def backward(self, dLoss_dValues):
-        self.dLoss_dInputs = dLoss_dValues.copy()
+    def backward(self, dLoss_dOutput):
+        self.dLoss_dInputs = dLoss_dOutput.copy()
         self.dLoss_dInputs[self.inputs <= 0] = 0
-        # self.dLoss_dInputs = dLoss_dValues * self.derivative(self.inputs)
+        # self.dLoss_dInputs = dLoss_dOutput * self.derivative(self.inputs)
 
 
 class Softmax(Activation):
