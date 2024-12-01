@@ -1,10 +1,11 @@
-import nnfs.datasets
-from lib.Activation import ReLU, Softmax
-from lib.Layer import Layer
-from lib.Loss_Activation import Softmax_CategoricalCrossEntropy
-import nnfs
 import numpy as np
-from lib.Optimizer import SGD
+import nnfs
+import nnfs.datasets
+from lib.Layer import Layer
+from lib.Activation import *
+from lib.Loss_Activation import Softmax_CategoricalCrossEntropy
+from lib.Optimizer import *
+nnfs.init()
 
 
 # init dataset
@@ -19,6 +20,7 @@ layer2 = Layer(layer1.nbOfOutputs, n_classes)
 activation1 = ReLU()
 activation_loss = Softmax_CategoricalCrossEntropy()
 optimizer = SGD(decay=1e-3, momentum=0.9)
+# optimizer = AdaGrad(decay=1e-4)
 
 
 # train model
@@ -47,9 +49,10 @@ for i in range(10001):
     layer1.backward(activation1.dLoss_dInputs)
 
     ''' OPTIMIZE '''
-    optimizer.update_params(layer1, i)
-    optimizer.update_params(layer2, i)
-
+    optimizer.pre_update_params()
+    optimizer.update_params(layer1)
+    optimizer.update_params(layer2)
+    optimizer.post_update_params()
 
 
 ''' STUCK IN LOCAL MINIMA '''
@@ -61,3 +64,6 @@ for i in range(10001):
 
 # GRADIENT DESCENT + DECAY + MOMENTUM
 # epoch 10000, acc: 0.76, loss: 0.5888457732137535, lr: 0.09091735612328393
+
+# ADAGRAD
+# epoch 10000, acc: 0.5733333333333334, loss: 0.7593883984318834, lr: 0.09091735612328393
