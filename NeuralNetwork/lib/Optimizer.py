@@ -8,6 +8,7 @@ class SGD:
         self.decay = decay
         self.momentum = momentum
 
+
     def update_params(self, layer:Layer, iteration:int):
         self.current_lr = (self.lr) / (1 + self.decay * iteration)
 
