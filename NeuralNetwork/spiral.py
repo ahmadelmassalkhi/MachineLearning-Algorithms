@@ -19,8 +19,12 @@ layer1 = Layer(nbOfInputs, 64)
 layer2 = Layer(layer1.nbOfOutputs, n_classes)
 activation1 = ReLU()
 activation_loss = Softmax_CategoricalCrossEntropy()
-optimizer = SGD(decay=1e-3, momentum=0.9)
-# optimizer = AdaGrad(decay=1e-4)
+# optimizer = SGD(lr=1) # acc: 0.610
+# optimizer = SGD(lr=0.1, decay=1e-6) # acc: 0.483
+# optimizer = SGD(lr=0.1, decay=1e-7, momentum=0.99) # acc: 0.983
+# optimizer = AdaGrad(lr=0.1, decay=1e-7) # acc: 0.837
+optimizer = RMSProp(lr=0.1, decay=1e-2, rho=0.9) # acc: 0.953
+
 
 
 # train model
@@ -37,8 +41,8 @@ for i in range(10001):
     accuracy = np.mean(np.argmax(activation_loss.softmax.output, axis=1) == y_train)
     if not i % 100:
         print(f'epoch {i}, '+
-              f'acc: {accuracy}, ' +
-              f'loss: {loss}, ' +
+              f'acc: {accuracy:.3f}, ' +
+              f'loss: {loss:.3f}, ' +
               f'lr: {optimizer.current_lr}')
     
     ''' BACKWARD PASS '''
@@ -56,14 +60,3 @@ for i in range(10001):
 
 
 ''' STUCK IN LOCAL MINIMA '''
-# GRADIENT DESCENT:
-# epoch 10000, acc: 0.48, loss: 1.0185533744272335, lr: 1.0
-
-# GRADIENT DESCENT + DECAY:
-# epoch 10000, acc: 0.5066666666666667, loss: 0.9851354937656096, lr: 0.09091735612328393
-
-# GRADIENT DESCENT + DECAY + MOMENTUM
-# epoch 10000, acc: 0.76, loss: 0.5888457732137535, lr: 0.09091735612328393
-
-# ADAGRAD
-# epoch 10000, acc: 0.5733333333333334, loss: 0.7593883984318834, lr: 0.09091735612328393
