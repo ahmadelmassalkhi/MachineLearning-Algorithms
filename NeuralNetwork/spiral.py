@@ -13,18 +13,18 @@ nbOfInputs = 2 # always true for spiral dataset
 n_samples, n_classes = 100, 3
 (X_train, y_train) = nnfs.datasets.spiral_data(n_samples, n_classes) 
 
-
 # init model
 layer1 = Layer(nbOfInputs, 64)
 layer2 = Layer(layer1.nbOfOutputs, n_classes)
 activation1 = ReLU()
 activation_loss = Softmax_CategoricalCrossEntropy()
+
 # optimizer = SGD(lr=1) # acc: 0.610
 # optimizer = SGD(lr=0.1, decay=1e-6) # acc: 0.483
 # optimizer = SGD(lr=0.1, decay=1e-7, momentum=0.99) # acc: 0.983
 # optimizer = AdaGrad(lr=0.1, decay=1e-7) # acc: 0.837
-optimizer = RMSProp(lr=0.1, decay=1e-2, rho=0.9) # acc: 0.953
-
+# optimizer = RMSProp(lr=0.1, decay=1e-2, rho=0.9) # acc: 0.953
+optimizer = Adam(lr=0.01, decay=1e-3, beta1=0.9, beta2=0.999) # acc: 0.963
 
 
 # train model
@@ -58,5 +58,3 @@ for i in range(10001):
     optimizer.update_params(layer2)
     optimizer.post_update_params()
 
-
-''' STUCK IN LOCAL MINIMA '''

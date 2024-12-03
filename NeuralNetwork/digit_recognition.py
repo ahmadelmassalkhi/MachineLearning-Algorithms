@@ -5,6 +5,8 @@ from lib.Loss_Activation import Softmax_CategoricalCrossEntropy
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+from lib.Optimizer import *
+
 
 
 class NeuralNetwork:
@@ -31,6 +33,9 @@ class NeuralNetwork:
         self.activation2 = ReLU()
         self.activationN = Softmax()
         self.Softmax_Loss = Softmax_CategoricalCrossEntropy()
+
+        # init optimizer
+        self.optimizer = SGD(lr=0.1, decay=1e-7, momentum=0.99)
 
     ''' X: numpy array of shape (any, 28x28) '''
     def forward(self, X):
@@ -59,6 +64,15 @@ class NeuralNetwork:
             self.forward(images)
             self.Softmax_Loss.forward(self.layerN.output, np.array(labels))
 
+            ''' EVALUATE MODEL PREDICTION '''
+            loss = np.average(self.Softmax_Loss.loss.output)
+            accuracy = np.mean(np.argmax(self.Softmax_Loss.softmax.output, axis=1) == labels)
+            if not i % 100:
+                print(f'epoch {i}, '+
+                    f'acc: {accuracy:.3f}, ' +
+                    f'loss: {loss:.3f}, ' +
+                    f'lr: {self.optimizer.current_lr}')
+
             # backward propagation
             self.Softmax_Loss.backward()
             self.layerN.backward(self.Softmax_Loss.dLoss_dInputs)
@@ -68,6 +82,13 @@ class NeuralNetwork:
 
             self.activation1.backward(self.layer2.dLoss_dInputs)
             self.layer1.backward(self.activation1.dLoss_dInputs)
+
+            # optimize / descent gradient
+            self.optimizer.pre_update_params()
+            self.optimizer.update_params(self.layer1)
+            self.optimizer.update_params(self.layer2)
+            self.optimizer.update_params(self.layerN)
+            self.optimizer.post_update_params()
 
             # print stats
             confidence = np.average(self.Softmax_Loss.softmax.output[range(len(labels)), labels])
