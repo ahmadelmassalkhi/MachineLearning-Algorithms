@@ -35,7 +35,8 @@ class NeuralNetwork:
         self.Softmax_Loss = Softmax_CategoricalCrossEntropy()
 
         # init optimizer
-        self.optimizer = SGD(lr=0.1, decay=1e-7, momentum=0.99)
+        self.optimizer = SGD(lr=0.1, decay=1e-7, momentum_factor=0.99)
+        # self.optimizer = Adam()
 
     ''' X: numpy array of shape (any, 28x28) '''
     def forward(self, X):
