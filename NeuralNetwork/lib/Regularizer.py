@@ -37,10 +37,11 @@ class L2(Regularizer):
         self.loss["weights"] += self._lambda["weights"] * np.sum(layer.weights ** 2)
         self.loss["biases"] += self._lambda["biases"] * np.sum(layer.biases ** 2)
 
+    def get_loss(self):
+        return self.loss["weights"] + self.loss["biases"]
+
     def backward(self, layer: Layer):
         layer.dLoss_dWeights += 2 * self._lambda["weights"] * layer.weights
         layer.dLoss_dBiases += 2 * self._lambda["biases"] * layer.biases
 
-    def get_loss(self):
-        return self.loss["weights"] + self.loss["biases"]
     
