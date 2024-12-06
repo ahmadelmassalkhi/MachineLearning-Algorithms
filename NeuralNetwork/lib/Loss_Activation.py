@@ -7,10 +7,11 @@ class Softmax_CategoricalCrossEntropy:
         self.softmax = Softmax()
         self.loss = CategoricalCrossEntropy()
 
-    def forward(self, inputs, y_real):
-        self.y_real = y_real
+    def forward(self, inputs, y_real=None):
         self.softmax.forward(inputs)
-        self.loss.forward(self.softmax.output, y_real)
+        if y_real is not None:
+            self.y_real = y_real
+            self.loss.forward(self.softmax.output, y_real)
 
     def backward(self):
         # make sure y_real is one hot encoded
