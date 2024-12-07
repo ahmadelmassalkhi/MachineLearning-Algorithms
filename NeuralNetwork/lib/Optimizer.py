@@ -2,6 +2,7 @@ from lib.Layer import Layer
 import numpy as np
 
 
+
 class Optimizer:
     def update_params(self):
         pass
@@ -14,6 +15,7 @@ class Optimizer:
             self.update_params(layer)
         if hasattr(self, 'post_update_params'):
             self.post_update_params()
+
 
 
 class SGD(Optimizer):
@@ -48,6 +50,7 @@ class SGD(Optimizer):
         self.iteration += 1
 
 
+
 class AdaGrad(Optimizer):
     def __init__(self, lr=1, decay=0, epsilon=1e-7):
         self.lr = self.current_lr = lr
@@ -78,6 +81,7 @@ class AdaGrad(Optimizer):
     def post_update_params(self):
         # Increment iteration counter
         self.iteration += 1
+
 
 
 class RMSProp(Optimizer):
@@ -111,6 +115,7 @@ class RMSProp(Optimizer):
     def post_update_params(self):
         # Increment iteration counter
         self.iteration += 1
+
 
 
 class Adam(Optimizer):

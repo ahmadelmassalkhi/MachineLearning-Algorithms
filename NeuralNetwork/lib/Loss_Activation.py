@@ -14,7 +14,7 @@ class Softmax_CategoricalCrossEntropy:
             self.loss.forward(self.softmax.output, y_real)
 
     def backward(self):
-        # make sure y_real is one hot encoded
+        # ensure one hot encoding
         if self.y_real.shape != self.softmax.output.shape:
             self.y_real = np.eye(self.softmax.output.shape[1])[self.y_real]
         self.dLoss_dInputs = (self.softmax.output - self.y_real) / len(self.y_real)
