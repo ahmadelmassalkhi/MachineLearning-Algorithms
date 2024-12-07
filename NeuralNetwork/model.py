@@ -1,3 +1,5 @@
+import nnfs
+import nnfs.datasets
 import pickle
 from lib.Layer import Layer
 from lib.Activation import *
@@ -7,7 +9,7 @@ from lib.Regularizer import *
 
 
 class model:
-    def __init__(self, nbOfInputs:int, nbOfOutputs:int, with_regularization:bool=False):
+    def __init__(self, nbOfInputs: int, nbOfOutputs: int, with_regularization: bool = False):
         self.nbOfInputs = nbOfInputs
         self.nbOfOutputs = nbOfOutputs
 
@@ -21,10 +23,10 @@ class model:
         self.optimizer = Adam()
         if with_regularization:
             self.regularizer = L2(1e-6, 0)
-        else: 
+        else:
             self.regularizer = 0
 
-    def load(self, model_path:str):
+    def load(self, model_path: str):
         # get model
         try:
             # load model
@@ -39,13 +41,11 @@ class model:
             self.layerN = Layer(self.layer2.nbOfOutputs, self.nbOfOutputs)
             print(f"Model `{model_path}` initialized from scratch")
 
-
     def save(self):
         # Save layers to a file (to save their weights & biases)
         with open(self.model_path, 'wb') as file:
             pickle.dump([self.layer1, self.layer2, self.layerN], file)
             print(f'Model saved to {self.model_path}')
-
 
     def forward(self, X, y=None):
         self.layer1.forward(X)
@@ -59,15 +59,16 @@ class model:
             ''' EVALUATE MODEL PREDICTION '''
             self.Softmax_Loss.forward(self.layerN.output, y)
             self.loss = np.average(self.Softmax_Loss.loss.output)
-            self.accuracy = np.mean(np.argmax(self.Softmax_Loss.softmax.output, axis=1) == y)
+            self.accuracy = np.mean(
+                np.argmax(self.Softmax_Loss.softmax.output, axis=1) == y)
         else:
             self.activationN.forward(self.layerN.output)
 
-
     # performs full propagation until reaching a target-confidence
     ''' X: numpy array of shape (any, nbOfInputs) '''
-    def learn(self, X, y:list[int], target_accuracy:float=0.99):
-        if len(X)!=len(y):
+
+    def learn(self, X, y: list[int], target_accuracy: float = 0.99):
+        if len(X) != len(y):
             raise ValueError(f'Number of Features != Labels!')
         # propagate
         self.accuracy = i = 0
@@ -76,23 +77,26 @@ class model:
 
             ''' LOG MODEL EVALUATION '''
             if not i % 100:
-                print(f'epoch {i}, '+
-                    f'acc: {self.accuracy:.3f}, ' +
-                    f'loss: {self.loss:.3f}, ' +
-                    f'lr: {self.optimizer.current_lr}')
+                print(f'epoch {i}, ' +
+                      f'acc: {self.accuracy:.3f}, ' +
+                      f'loss: {self.loss:.3f}, ' +
+                      f'lr: {self.optimizer.current_lr}')
 
             # backward propagation
             self.Softmax_Loss.backward()
             self.layerN.backward(self.Softmax_Loss.dLoss_dInputs)
-            if self.regularizer: self.regularizer.backward(self.layerN)
+            if self.regularizer:
+                self.regularizer.backward(self.layerN)
 
             self.activation2.backward(self.layerN.dLoss_dInputs)
             self.layer2.backward(self.activation2.dLoss_dInputs)
-            if self.regularizer: self.regularizer.backward(self.layer2)
+            if self.regularizer:
+                self.regularizer.backward(self.layer2)
 
             self.activation1.backward(self.layer2.dLoss_dInputs)
             self.layer1.backward(self.activation1.dLoss_dInputs)
-            if self.regularizer: self.regularizer.backward(self.layer1)
+            if self.regularizer:
+                self.regularizer.backward(self.layer1)
 
             # optimize / descent gradient
             self.optimizer.pre_update_params()
@@ -100,16 +104,14 @@ class model:
             self.optimizer.update_params(self.layer2)
             self.optimizer.update_params(self.layerN)
             self.optimizer.post_update_params()
-            i+=1
+            i += 1
 
-import nnfs
-import nnfs.datasets
+
 nnfs.init()
 
 
-
 n_samples, n_classes = 100, 3
-(X_train, y_train) = nnfs.datasets.spiral_data(n_samples, n_classes) 
+(X_train, y_train) = nnfs.datasets.spiral_data(n_samples, n_classes)
 
 # init models
 _model = model(nbOfInputs=2, nbOfOutputs=n_classes, with_regularization=False)
@@ -117,20 +119,19 @@ _model.load(model_path='model.pkl')
 _model.learn(X_train, y_train)
 
 
-_model_regularization = model(nbOfInputs=2, nbOfOutputs=n_classes, with_regularization=True)
+_model_regularization = model(
+    nbOfInputs=2, nbOfOutputs=n_classes, with_regularization=True)
 _model_regularization.load(model_path='model.pkl')
 _model_regularization.learn(X_train, y_train)
 
 
-def evaluate(_model:model, X_test, y_test):
+def evaluate(_model: model, X_test, y_test):
     _model.forward(X_test, y_test)
     print(f'acc: {_model.accuracy:.3f}, ' +
-            f'loss: {_model.loss:.3f}, ' +
-            f'lr: {_model.optimizer.current_lr}')
+          f'loss: {_model.loss:.3f}, ' +
+          f'lr: {_model.optimizer.current_lr}')
 
 
 (X_test, y_test) = nnfs.datasets.spiral_data(10000, n_classes)
 evaluate(_model, X_test, y_test)
 evaluate(_model_regularization, X_test, y_test)
-
-
