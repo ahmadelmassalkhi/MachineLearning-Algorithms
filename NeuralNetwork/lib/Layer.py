@@ -39,7 +39,8 @@ class Dropout(Layer):
         self.rate = rate
 
     def forward(self, inputs):
-        self.binomial = np.random.binomial(1, 1-self.rate, inputs.shape)
+        self.binomial = np.random.binomial(
+            1, 1-self.rate, inputs.shape) / (1 - self.rate)
         self.output = inputs * self.binomial
 
     def backward(self, dLoss_dOutput):
