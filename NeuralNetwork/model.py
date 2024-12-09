@@ -24,7 +24,7 @@ class model:
         # init optimizer
         self.optimizer = Adam(lr=0.05, decay=5e-5)
         if regularize:
-            self.regularizer = L2()
+            self.regularizer = L2(1e-6, 0)
         else:
             self.regularizer = None
 
@@ -105,7 +105,7 @@ n_samples, n_classes = 1000, 3
 
 # model1: regularization + dropout layer
 _model = model(nbOfInputs=2, nbOfOutputs=n_classes,
-               regularize=True, dropout_rate=0.1)
+               regularize=True, dropout_rate=0.2)
 _model.load(model_path='model.pkl')
 _model.learn(X_train, y_train)
 _model.save()
@@ -129,6 +129,7 @@ def evaluate(_model: model, X_test, y_test):
 
 print()
 print(f'model 1 (regularization + dropout)')
+_model.dropout1.rate = 0
 evaluate(_model, X_test, y_test)
 
 print()
