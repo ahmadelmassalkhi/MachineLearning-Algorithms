@@ -1,13 +1,12 @@
-from lib.Layer import Layer
+from lib.Layer import Dense
 import numpy as np
-
 
 
 class Optimizer:
     def update_params(self):
         pass
 
-    def update_network(self, layers: list[Layer]):
+    def update_network(self, layers: list[Dense]):
         # Perform updates in sequence with optional hooks
         if hasattr(self, 'pre_update_params'):
             self.pre_update_params()
@@ -15,7 +14,6 @@ class Optimizer:
             self.update_params(layer)
         if hasattr(self, 'post_update_params'):
             self.post_update_params()
-
 
 
 class SGD(Optimizer):
@@ -29,7 +27,7 @@ class SGD(Optimizer):
         # Adjust learning rate with decay
         self.current_lr = self.lr / (1 + self.decay * self.iteration)
 
-    def update_params(self, layer: Layer):
+    def update_params(self, layer: Dense):
         # Initialize momentum if not present
         if not hasattr(layer, 'momentum'):
             layer.momentum = {
@@ -38,8 +36,10 @@ class SGD(Optimizer):
             }
 
         # Compute momentum-based updates
-        layer.momentum["weights"] = self.momentum_factor * layer.momentum["weights"] - self.current_lr * layer.dLoss_dWeights
-        layer.momentum["biases"] = self.momentum_factor * layer.momentum["biases"] - self.current_lr * layer.dLoss_dBiases
+        layer.momentum["weights"] = self.momentum_factor * \
+            layer.momentum["weights"] - self.current_lr * layer.dLoss_dWeights
+        layer.momentum["biases"] = self.momentum_factor * \
+            layer.momentum["biases"] - self.current_lr * layer.dLoss_dBiases
 
         # Apply updates
         layer.weights += layer.momentum["weights"]
@@ -48,7 +48,6 @@ class SGD(Optimizer):
     def post_update_params(self):
         # Increment iteration counter
         self.iteration += 1
-
 
 
 class AdaGrad(Optimizer):
@@ -62,7 +61,7 @@ class AdaGrad(Optimizer):
         # Adjust learning rate with decay
         self.current_lr = self.lr / (1 + self.decay * self.iteration)
 
-    def update_params(self, layer: Layer):
+    def update_params(self, layer: Dense):
         # Initialize velocity if not present
         if not hasattr(layer, 'velocity'):
             layer.velocity = {
@@ -75,13 +74,14 @@ class AdaGrad(Optimizer):
         layer.velocity["biases"] += layer.dLoss_dBiases ** 2
 
         # Apply updates with scaled gradients
-        layer.weights -= self.current_lr * layer.dLoss_dWeights / np.sqrt(layer.velocity["weights"] + self.epsilon)
-        layer.biases -= self.current_lr * layer.dLoss_dBiases / np.sqrt(layer.velocity["biases"] + self.epsilon)
+        layer.weights -= self.current_lr * layer.dLoss_dWeights / \
+            np.sqrt(layer.velocity["weights"] + self.epsilon)
+        layer.biases -= self.current_lr * layer.dLoss_dBiases / \
+            np.sqrt(layer.velocity["biases"] + self.epsilon)
 
     def post_update_params(self):
         # Increment iteration counter
         self.iteration += 1
-
 
 
 class RMSProp(Optimizer):
@@ -96,7 +96,7 @@ class RMSProp(Optimizer):
         # Adjust learning rate with decay
         self.current_lr = self.lr / (1 + self.decay * self.iteration)
 
-    def update_params(self, layer: Layer):
+    def update_params(self, layer: Dense):
         # Initialize velocity if not present
         if not hasattr(layer, 'velocity'):
             layer.velocity = {
@@ -105,17 +105,20 @@ class RMSProp(Optimizer):
             }
 
         # Update velocity (EMA of squared gradients)
-        layer.velocity["weights"] = self.beta2 * layer.velocity["weights"] + (1 - self.beta2) * (layer.dLoss_dWeights ** 2)
-        layer.velocity["biases"] = self.beta2 * layer.velocity["biases"] + (1 - self.beta2) * (layer.dLoss_dBiases ** 2)
+        layer.velocity["weights"] = self.beta2 * layer.velocity["weights"] + \
+            (1 - self.beta2) * (layer.dLoss_dWeights ** 2)
+        layer.velocity["biases"] = self.beta2 * layer.velocity["biases"] + \
+            (1 - self.beta2) * (layer.dLoss_dBiases ** 2)
 
         # Apply updates with scaled gradients
-        layer.weights -= self.current_lr * layer.dLoss_dWeights / np.sqrt(layer.velocity["weights"] + self.epsilon)
-        layer.biases -= self.current_lr * layer.dLoss_dBiases / np.sqrt(layer.velocity["biases"] + self.epsilon)
+        layer.weights -= self.current_lr * layer.dLoss_dWeights / \
+            np.sqrt(layer.velocity["weights"] + self.epsilon)
+        layer.biases -= self.current_lr * layer.dLoss_dBiases / \
+            np.sqrt(layer.velocity["biases"] + self.epsilon)
 
     def post_update_params(self):
         # Increment iteration counter
         self.iteration += 1
-
 
 
 class Adam(Optimizer):
@@ -131,7 +134,7 @@ class Adam(Optimizer):
         # Adjust learning rate with decay
         self.current_lr = self.lr / (1 + self.decay * self.iteration)
 
-    def update_params(self, layer: Layer):
+    def update_params(self, layer: Dense):
         # Initialize momentum and velocity if not present
         if not hasattr(layer, 'momentum'):
             layer.momentum = {
@@ -144,12 +147,16 @@ class Adam(Optimizer):
             }
 
         # Update momentum (EMA of gradients)
-        layer.momentum["weights"] = self.beta1 * layer.momentum["weights"] + (1 - self.beta1) * layer.dLoss_dWeights
-        layer.momentum["biases"] = self.beta1 * layer.momentum["biases"] + (1 - self.beta1) * layer.dLoss_dBiases
+        layer.momentum["weights"] = self.beta1 * \
+            layer.momentum["weights"] + (1 - self.beta1) * layer.dLoss_dWeights
+        layer.momentum["biases"] = self.beta1 * \
+            layer.momentum["biases"] + (1 - self.beta1) * layer.dLoss_dBiases
 
         # Update velocity (EMA of squared gradients)
-        layer.velocity["weights"] = self.beta2 * layer.velocity["weights"] + (1 - self.beta2) * (layer.dLoss_dWeights ** 2)
-        layer.velocity["biases"] = self.beta2 * layer.velocity["biases"] + (1 - self.beta2) * (layer.dLoss_dBiases ** 2)
+        layer.velocity["weights"] = self.beta2 * layer.velocity["weights"] + \
+            (1 - self.beta2) * (layer.dLoss_dWeights ** 2)
+        layer.velocity["biases"] = self.beta2 * layer.velocity["biases"] + \
+            (1 - self.beta2) * (layer.dLoss_dBiases ** 2)
 
         # Correct bias for momentum and velocity
         momentum_corr = {
@@ -162,8 +169,12 @@ class Adam(Optimizer):
         }
 
         # Compute and apply updates
-        layer.weights -= self.current_lr * momentum_corr["weights"] / (np.sqrt(velocity_corr["weights"]) + self.epsilon)
-        layer.biases -= self.current_lr * momentum_corr["biases"] / (np.sqrt(velocity_corr["biases"]) + self.epsilon)
+        layer.weights -= self.current_lr * \
+            momentum_corr["weights"] / \
+            (np.sqrt(velocity_corr["weights"]) + self.epsilon)
+        layer.biases -= self.current_lr * \
+            momentum_corr["biases"] / \
+            (np.sqrt(velocity_corr["biases"]) + self.epsilon)
 
     def post_update_params(self):
         # Increment iteration counter

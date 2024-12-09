@@ -36,9 +36,9 @@ class model:
             print(f'Model loaded from {model_path}')
         except FileNotFoundError:
             # init model
-            self.layer1 = Layer(self.nbOfInputs, 256)
-            self.layer2 = Layer(self.layer1.nbOfOutputs, 128)
-            self.layerN = Layer(self.layer2.nbOfOutputs, self.nbOfOutputs)
+            self.layer1 = Dense(self.nbOfInputs, 256)
+            self.layer2 = Dense(self.layer1.nbOfOutputs, 128)
+            self.layerN = Dense(self.layer2.nbOfOutputs, self.nbOfOutputs)
             print(f"Model `{model_path}` initialized from scratch")
 
     def save(self):
@@ -108,21 +108,13 @@ class model:
 
 
 nnfs.init()
-
-
-n_samples, n_classes = 100, 3
+n_samples, n_classes = 1000, 3
 (X_train, y_train) = nnfs.datasets.spiral_data(n_samples, n_classes)
 
-# init models
-_model = model(nbOfInputs=2, nbOfOutputs=n_classes, with_regularization=False)
+# init & train model
+_model = model(nbOfInputs=2, nbOfOutputs=n_classes, with_regularization=True)
 _model.load(model_path='model.pkl')
-_model.learn(X_train, y_train)
-
-
-_model_regularization = model(
-    nbOfInputs=2, nbOfOutputs=n_classes, with_regularization=True)
-_model_regularization.load(model_path='model.pkl')
-_model_regularization.learn(X_train, y_train)
+_model.learn(X_train, y_train, 0.9)
 
 
 def evaluate(_model: model, X_test, y_test):
@@ -132,6 +124,5 @@ def evaluate(_model: model, X_test, y_test):
           f'lr: {_model.optimizer.current_lr}')
 
 
-(X_test, y_test) = nnfs.datasets.spiral_data(10000, n_classes)
+(X_test, y_test) = nnfs.datasets.spiral_data(100, n_classes)
 evaluate(_model, X_test, y_test)
-evaluate(_model_regularization, X_test, y_test)
