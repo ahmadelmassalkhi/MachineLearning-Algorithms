@@ -1,7 +1,7 @@
 import nnfs
 import nnfs.datasets
 import pickle
-from lib.Layer import Layer
+from lib.Layer import *
 from lib.Activation import *
 from lib.Loss_Activation import *
 from lib.Optimizer import *
@@ -9,7 +9,7 @@ from lib.Regularizer import *
 
 
 class model:
-    def __init__(self, nbOfInputs: int, nbOfOutputs: int, with_regularization: bool = False):
+    def __init__(self, nbOfInputs: int, nbOfOutputs: int, regularize: bool = False, dropout_rate: float = 0.0):
         self.nbOfInputs = nbOfInputs
         self.nbOfOutputs = nbOfOutputs
 
@@ -17,14 +17,17 @@ class model:
         self.activation1 = ReLU()
         self.activation2 = ReLU()
         self.activationN = Softmax()
+
+        self.dropout1 = Dropout(rate=dropout_rate)
+        self.dropout2 = Dropout(rate=dropout_rate)
         self.Softmax_Loss = Softmax_CategoricalCrossEntropy()
 
         # init optimizer
         self.optimizer = Adam()
-        if with_regularization:
+        if regularize:
             self.regularizer = L2(1e-6, 0)
         else:
-            self.regularizer = 0
+            self.regularizer = None
 
     def load(self, model_path: str):
         # get model
@@ -50,11 +53,13 @@ class model:
     def forward(self, X, y=None):
         self.layer1.forward(X)
         self.activation1.forward(self.layer1.output)
+        self.dropout1.forward(self.activation1.output)
 
-        self.layer2.forward(self.activation1.output)
+        self.layer2.forward(self.dropout1.output)
         self.activation2.forward(self.layer2.output)
+        self.dropout2.forward(self.activation2.output)
 
-        self.layerN.forward(self.activation2.output)
+        self.layerN.forward(self.dropout2.output)
         if y is not None:
             ''' EVALUATE MODEL PREDICTION '''
             self.Softmax_Loss.forward(self.layerN.output, y)
@@ -64,15 +69,15 @@ class model:
         else:
             self.activationN.forward(self.layerN.output)
 
-    # performs full propagation until reaching a target-confidence
+    # performs full propagation until reaching a target-accuracy
     ''' X: numpy array of shape (any, nbOfInputs) '''
 
-    def learn(self, X, y: list[int], target_accuracy: float = 0.99):
+    def learn(self, X, y: list[int], target_accuracy: float = 0.99, iterations_limit: int = 10001):
         if len(X) != len(y):
             raise ValueError(f'Number of Features != Labels!')
         # propagate
         self.accuracy = i = 0
-        while self.accuracy < target_accuracy:
+        while self.accuracy < target_accuracy and i < iterations_limit:
             self.forward(X, y)
 
             ''' LOG MODEL EVALUATION '''
@@ -85,17 +90,18 @@ class model:
             # backward propagation
             self.Softmax_Loss.backward()
             self.layerN.backward(self.Softmax_Loss.dLoss_dInputs)
+
+            self.dropout2.backward(self.layerN.dLoss_dInputs)
+            self.activation2.backward(self.dropout2.dLoss_dInputs)
+            self.layer2.backward(self.activation2.dLoss_dInputs)
+
+            self.dropout1.backward(self.layer2.dLoss_dInputs)
+            self.activation1.backward(self.dropout1.dLoss_dInputs)
+            self.layer1.backward(self.activation1.dLoss_dInputs)
+
             if self.regularizer:
                 self.regularizer.backward(self.layerN)
-
-            self.activation2.backward(self.layerN.dLoss_dInputs)
-            self.layer2.backward(self.activation2.dLoss_dInputs)
-            if self.regularizer:
                 self.regularizer.backward(self.layer2)
-
-            self.activation1.backward(self.layer2.dLoss_dInputs)
-            self.layer1.backward(self.activation1.dLoss_dInputs)
-            if self.regularizer:
                 self.regularizer.backward(self.layer1)
 
             # optimize / descent gradient
@@ -108,13 +114,15 @@ class model:
 
 
 nnfs.init()
-n_samples, n_classes = 1000, 3
+n_samples, n_classes = 100, 3
 (X_train, y_train) = nnfs.datasets.spiral_data(n_samples, n_classes)
 
 # init & train model
-_model = model(nbOfInputs=2, nbOfOutputs=n_classes, with_regularization=True)
+# _model = model(nbOfInputs=2, nbOfOutputs=n_classes)
+_model = model(nbOfInputs=2, nbOfOutputs=n_classes,
+               regularize=True, dropout_rate=0.5)
 _model.load(model_path='model.pkl')
-_model.learn(X_train, y_train, 0.9)
+_model.learn(X_train, y_train, 0.85)
 
 
 def evaluate(_model: model, X_test, y_test):
@@ -124,5 +132,5 @@ def evaluate(_model: model, X_test, y_test):
           f'lr: {_model.optimizer.current_lr}')
 
 
-(X_test, y_test) = nnfs.datasets.spiral_data(100, n_classes)
+(X_test, y_test) = nnfs.datasets.spiral_data(100000, n_classes)
 evaluate(_model, X_test, y_test)
