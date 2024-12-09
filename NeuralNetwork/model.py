@@ -118,11 +118,10 @@ n_samples, n_classes = 100, 3
 (X_train, y_train) = nnfs.datasets.spiral_data(n_samples, n_classes)
 
 # init & train model
-# _model = model(nbOfInputs=2, nbOfOutputs=n_classes)
 _model = model(nbOfInputs=2, nbOfOutputs=n_classes,
-               regularize=True, dropout_rate=0.5)
+               regularize=True, dropout_rate=0.3)
 _model.load(model_path='model.pkl')
-_model.learn(X_train, y_train, 0.85)
+_model.learn(X_train, y_train, 0.9)
 
 
 def evaluate(_model: model, X_test, y_test):

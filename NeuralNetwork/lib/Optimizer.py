@@ -3,8 +3,21 @@ import numpy as np
 
 
 class Optimizer:
+    def __init__(self, lr=0.01, decay=0):
+        self.lr = self.current_lr = lr
+        self.iteration = 0  # Update counter
+        self.decay = decay  # Decay factor
+
+    # Adjust learning rate with decay
+    def pre_update_params(self):
+        self.current_lr = self.lr / (1 + self.decay * self.iteration)
+
     def update_params(self):
-        pass
+        raise NotImplementedError
+
+    # Increment iteration counter
+    def post_update_params(self):
+        self.iteration += 1
 
     def update_network(self, layers: list[Dense]):
         # Perform updates in sequence with optional hooks
@@ -18,14 +31,8 @@ class Optimizer:
 
 class SGD(Optimizer):
     def __init__(self, lr=1, decay=0, momentum_factor=0):
-        self.lr = self.current_lr = lr  # Base learning rate
-        self.iteration = 0  # Update counter
-        self.decay = decay  # Decay factor
+        super().__init__(lr, decay)
         self.momentum_factor = momentum_factor  # Momentum factor
-
-    def pre_update_params(self):
-        # Adjust learning rate with decay
-        self.current_lr = self.lr / (1 + self.decay * self.iteration)
 
     def update_params(self, layer: Dense):
         # Initialize momentum if not present
@@ -45,21 +52,11 @@ class SGD(Optimizer):
         layer.weights += layer.momentum["weights"]
         layer.biases += layer.momentum["biases"]
 
-    def post_update_params(self):
-        # Increment iteration counter
-        self.iteration += 1
-
 
 class AdaGrad(Optimizer):
     def __init__(self, lr=1, decay=0, epsilon=1e-7):
-        self.lr = self.current_lr = lr
-        self.iteration = 0  # Update counter
-        self.decay = decay  # Decay factor
+        super().__init__(lr, decay)
         self.epsilon = epsilon  # Smoothing term
-
-    def pre_update_params(self):
-        # Adjust learning rate with decay
-        self.current_lr = self.lr / (1 + self.decay * self.iteration)
 
     def update_params(self, layer: Dense):
         # Initialize velocity if not present
@@ -79,22 +76,12 @@ class AdaGrad(Optimizer):
         layer.biases -= self.current_lr * layer.dLoss_dBiases / \
             np.sqrt(layer.velocity["biases"] + self.epsilon)
 
-    def post_update_params(self):
-        # Increment iteration counter
-        self.iteration += 1
-
 
 class RMSProp(Optimizer):
     def __init__(self, lr=1, decay=0, epsilon=1e-7, beta2=0.9):
-        self.lr = self.current_lr = lr
-        self.iteration = 0  # Update counter
-        self.decay = decay  # Decay factor
+        super().__init__(lr, decay)
         self.epsilon = epsilon  # Smoothing term
         self.beta2 = beta2  # Decay rate for velocity
-
-    def pre_update_params(self):
-        # Adjust learning rate with decay
-        self.current_lr = self.lr / (1 + self.decay * self.iteration)
 
     def update_params(self, layer: Dense):
         # Initialize velocity if not present
@@ -116,23 +103,13 @@ class RMSProp(Optimizer):
         layer.biases -= self.current_lr * layer.dLoss_dBiases / \
             np.sqrt(layer.velocity["biases"] + self.epsilon)
 
-    def post_update_params(self):
-        # Increment iteration counter
-        self.iteration += 1
-
 
 class Adam(Optimizer):
     def __init__(self, lr=0.01, decay=0, epsilon=1e-7, beta1=0.9, beta2=0.999):
-        self.lr = self.current_lr = lr  # Base learning rate
-        self.iteration = 0  # Update counter
-        self.decay = decay  # Decay factor
+        super().__init__(lr, decay)
         self.epsilon = epsilon  # Smoothing term
         self.beta1 = beta1  # Momentum decay rate
         self.beta2 = beta2  # Velocity decay rate
-
-    def pre_update_params(self):
-        # Adjust learning rate with decay
-        self.current_lr = self.lr / (1 + self.decay * self.iteration)
 
     def update_params(self, layer: Dense):
         # Initialize momentum and velocity if not present
@@ -175,7 +152,3 @@ class Adam(Optimizer):
         layer.biases -= self.current_lr * \
             momentum_corr["biases"] / \
             (np.sqrt(velocity_corr["biases"]) + self.epsilon)
-
-    def post_update_params(self):
-        # Increment iteration counter
-        self.iteration += 1

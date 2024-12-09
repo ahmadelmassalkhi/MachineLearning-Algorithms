@@ -1,10 +1,12 @@
 import numpy as np
 
+
 class Loss:
     def forward(self):
-        pass
+        raise NotImplementedError
+
     def backward(self):
-        pass
+        raise NotImplementedError
 
 
 class CategoricalCrossEntropy(Loss):
@@ -14,4 +16,5 @@ class CategoricalCrossEntropy(Loss):
             y_real = np.eye(inputs.shape[1])[y_real]
 
         # compute negative log likelihood
-        self.output = -np.log(np.clip(np.sum(y_real * inputs, axis=1), 1e-7, 1-1e-7))
+        self.output = - \
+            np.log(np.clip(np.sum(y_real * inputs, axis=1), 1e-7, 1-1e-7))
