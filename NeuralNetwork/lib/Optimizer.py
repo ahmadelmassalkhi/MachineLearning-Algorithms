@@ -43,10 +43,8 @@ class SGD(Optimizer):
             }
 
         # Compute momentum-based updates
-        layer.momentum["weights"] = self.momentum_factor * \
-            layer.momentum["weights"] - self.current_lr * layer.dLoss_dWeights
-        layer.momentum["biases"] = self.momentum_factor * \
-            layer.momentum["biases"] - self.current_lr * layer.dLoss_dBiases
+        layer.momentum["weights"] = self.momentum_factor * layer.momentum["weights"] - self.current_lr * layer.dLoss_dWeights
+        layer.momentum["biases"] = self.momentum_factor * layer.momentum["biases"] - self.current_lr * layer.dLoss_dBiases
 
         # Apply updates
         layer.weights += layer.momentum["weights"]
@@ -71,10 +69,8 @@ class AdaGrad(Optimizer):
         layer.velocity["biases"] += layer.dLoss_dBiases ** 2
 
         # Apply updates with scaled gradients
-        layer.weights -= self.current_lr * layer.dLoss_dWeights / \
-            np.sqrt(layer.velocity["weights"] + self.epsilon)
-        layer.biases -= self.current_lr * layer.dLoss_dBiases / \
-            np.sqrt(layer.velocity["biases"] + self.epsilon)
+        layer.weights -= self.current_lr * layer.dLoss_dWeights / np.sqrt(layer.velocity["weights"] + self.epsilon)
+        layer.biases -= self.current_lr * layer.dLoss_dBiases / np.sqrt(layer.velocity["biases"] + self.epsilon)
 
 
 class RMSProp(Optimizer):
@@ -92,16 +88,12 @@ class RMSProp(Optimizer):
             }
 
         # Update velocity (EMA of squared gradients)
-        layer.velocity["weights"] = self.beta2 * layer.velocity["weights"] + \
-            (1 - self.beta2) * (layer.dLoss_dWeights ** 2)
-        layer.velocity["biases"] = self.beta2 * layer.velocity["biases"] + \
-            (1 - self.beta2) * (layer.dLoss_dBiases ** 2)
+        layer.velocity["weights"] = self.beta2 * layer.velocity["weights"] + (1 - self.beta2) * (layer.dLoss_dWeights ** 2)
+        layer.velocity["biases"] = self.beta2 * layer.velocity["biases"] + (1 - self.beta2) * (layer.dLoss_dBiases ** 2)
 
         # Apply updates with scaled gradients
-        layer.weights -= self.current_lr * layer.dLoss_dWeights / \
-            np.sqrt(layer.velocity["weights"] + self.epsilon)
-        layer.biases -= self.current_lr * layer.dLoss_dBiases / \
-            np.sqrt(layer.velocity["biases"] + self.epsilon)
+        layer.weights -= self.current_lr * layer.dLoss_dWeights / np.sqrt(layer.velocity["weights"] + self.epsilon)
+        layer.biases -= self.current_lr * layer.dLoss_dBiases / np.sqrt(layer.velocity["biases"] + self.epsilon)
 
 
 class Adam(Optimizer):
@@ -124,16 +116,12 @@ class Adam(Optimizer):
             }
 
         # Update momentum (EMA of gradients)
-        layer.momentum["weights"] = self.beta1 * \
-            layer.momentum["weights"] + (1 - self.beta1) * layer.dLoss_dWeights
-        layer.momentum["biases"] = self.beta1 * \
-            layer.momentum["biases"] + (1 - self.beta1) * layer.dLoss_dBiases
+        layer.momentum["weights"] = self.beta1 * layer.momentum["weights"] + (1 - self.beta1) * layer.dLoss_dWeights
+        layer.momentum["biases"] = self.beta1 * layer.momentum["biases"] + (1 - self.beta1) * layer.dLoss_dBiases
 
         # Update velocity (EMA of squared gradients)
-        layer.velocity["weights"] = self.beta2 * layer.velocity["weights"] + \
-            (1 - self.beta2) * (layer.dLoss_dWeights ** 2)
-        layer.velocity["biases"] = self.beta2 * layer.velocity["biases"] + \
-            (1 - self.beta2) * (layer.dLoss_dBiases ** 2)
+        layer.velocity["weights"] = self.beta2 * layer.velocity["weights"] + (1 - self.beta2) * (layer.dLoss_dWeights ** 2)
+        layer.velocity["biases"] = self.beta2 * layer.velocity["biases"] + (1 - self.beta2) * (layer.dLoss_dBiases ** 2)
 
         # Correct bias for momentum and velocity
         momentum_corr = {
@@ -146,9 +134,5 @@ class Adam(Optimizer):
         }
 
         # Compute and apply updates
-        layer.weights -= self.current_lr * \
-            momentum_corr["weights"] / \
-            (np.sqrt(velocity_corr["weights"]) + self.epsilon)
-        layer.biases -= self.current_lr * \
-            momentum_corr["biases"] / \
-            (np.sqrt(velocity_corr["biases"]) + self.epsilon)
+        layer.weights -= self.current_lr * momentum_corr["weights"] / (np.sqrt(velocity_corr["weights"]) + self.epsilon)
+        layer.biases -= self.current_lr * momentum_corr["biases"] / (np.sqrt(velocity_corr["biases"]) + self.epsilon)

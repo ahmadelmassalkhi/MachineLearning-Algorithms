@@ -32,14 +32,11 @@ class L1(Regularizer):
         super().__init__(_lambda1, _lambda2)
 
     def add_loss(self, layer: Dense):
-        self.loss["weights"] += self._lambda["weights"] * \
-            np.sum(np.abs(layer.weights))
-        self.loss["biases"] += self._lambda["biases"] * \
-            np.sum(np.abs(layer.biases))
+        self.loss["weights"] += self._lambda["weights"] * np.sum(np.abs(layer.weights))
+        self.loss["biases"] += self._lambda["biases"] * np.sum(np.abs(layer.biases))
 
     def backward(self, layer: Dense):
-        layer.dLoss_dWeights += self._lambda["weights"] * \
-            np.sign(layer.weights)
+        layer.dLoss_dWeights += self._lambda["weights"] * np.sign(layer.weights)
         layer.dLoss_dBiases += self._lambda["biases"] * np.sign(layer.biases)
 
 
@@ -48,10 +45,8 @@ class L2(Regularizer):
         super().__init__(_lambda1, _lambda2)
 
     def add_loss(self, layer: Dense):
-        self.loss["weights"] += self._lambda["weights"] * \
-            np.sum(layer.weights ** 2)
-        self.loss["biases"] += self._lambda["biases"] * \
-            np.sum(layer.biases ** 2)
+        self.loss["weights"] += self._lambda["weights"] * np.sum(layer.weights ** 2)
+        self.loss["biases"] += self._lambda["biases"] * np.sum(layer.biases ** 2)
 
     def backward(self, layer: Dense):
         layer.dLoss_dWeights += 2 * self._lambda["weights"] * layer.weights
