@@ -26,3 +26,6 @@ class Softmax(Activation):
         exp = np.exp(X - np.max(X, axis=1, keepdims=True))
         self.output = exp / np.sum(exp, axis=1, keepdims=True)
     
+    def backward(self, dLoss_dOutput):
+        # Compute batch-wise gradients efficiently
+        self.dLoss_dInput = self.output * (dLoss_dOutput - np.sum(dLoss_dOutput * self.output, axis=1, keepdims=True))
