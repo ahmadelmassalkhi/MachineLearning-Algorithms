@@ -43,5 +43,7 @@ class Dropout(Layer):
 
 class Flatten(Layer):
     def forward(self, inputs):
-        if len(inputs.shape) <= 1: return inputs
-        return np.reshape(inputs, (len(inputs), np.prod(inputs.shape[1:])))
+        if len(inputs.shape) <= 1: 
+            self.output = inputs
+        else: 
+            self.output = np.reshape(inputs, (len(inputs), np.prod(inputs.shape[1:])))
