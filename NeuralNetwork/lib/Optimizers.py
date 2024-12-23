@@ -1,4 +1,4 @@
-from lib.Layer import Dense
+from lib.Layers import Dense
 import numpy as np
 
 
@@ -27,10 +27,18 @@ class Optimizer:
             self.update_params(layer)
         if hasattr(self, 'post_update_params'):
             self.post_update_params()
+            
+    @staticmethod
+    def create(name: str) -> "Optimizer":
+        if name.lower() == 'sgd': return SGD()
+        if name.lower() == 'adagrad': return AdaGrad()
+        if name.lower() == 'rmsprop': return RMSProp()
+        if name.lower() == 'adam': return Adam()
+        raise ValueError(f"Optimizer {name} not supported.")
 
 
 class SGD(Optimizer):
-    def __init__(self, lr=1, decay=0, momentum_factor=0):
+    def __init__(self, lr=0.01, decay=0, momentum_factor=0.9):
         super().__init__(lr, decay)
         self.momentum_factor = momentum_factor  # Momentum factor
 
@@ -52,7 +60,7 @@ class SGD(Optimizer):
 
 
 class AdaGrad(Optimizer):
-    def __init__(self, lr=1, decay=0, epsilon=1e-7):
+    def __init__(self, lr=0.01, decay=0, epsilon=1e-7):
         super().__init__(lr, decay)
         self.epsilon = epsilon  # Smoothing term
 
@@ -74,7 +82,7 @@ class AdaGrad(Optimizer):
 
 
 class RMSProp(Optimizer):
-    def __init__(self, lr=1, decay=0, epsilon=1e-7, beta2=0.9):
+    def __init__(self, lr=0.001, decay=0, epsilon=1e-7, beta2=0.9):
         super().__init__(lr, decay)
         self.epsilon = epsilon  # Smoothing term
         self.beta2 = beta2  # Decay rate for velocity
@@ -97,7 +105,7 @@ class RMSProp(Optimizer):
 
 
 class Adam(Optimizer):
-    def __init__(self, lr=0.01, decay=0, epsilon=1e-7, beta1=0.9, beta2=0.999):
+    def __init__(self, lr=0.001, decay=0, epsilon=1e-7, beta1=0.9, beta2=0.999):
         super().__init__(lr, decay)
         self.epsilon = epsilon  # Smoothing term
         self.beta1 = beta1  # Momentum decay rate

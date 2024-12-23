@@ -2,26 +2,29 @@ import numpy as np
 
 
 class Loss:
-    def forward(self):
+    def forward(self, input, y_real):
         raise NotImplementedError
-
     def backward(self):
         raise NotImplementedError
 
+    @staticmethod
+    def create(name: str) -> "Loss":
+        if name.lower() == 'categoricalcrossentropy': return CategoricalCrossEntropy()
+        raise ValueError(f"Loss function {name} not supported.")
 
 class CategoricalCrossEntropy(Loss):
-    def forward(self, inputs, y_real):
+    def forward(self, input, y_real):
         # ensure one hot encoding
-        if y_real.shape != inputs.shape:
-            y_real = np.eye(inputs.shape[1])[y_real]
-
-        # compute negative log likelihood
-        self.output = -np.log(np.clip(np.sum(y_real * inputs, axis=1), 1e-7, 1-1e-7))
+        if y_real.shape != input.shape:
+            y_real = np.eye(input.shape[1])[y_real]
         
-        # cache
+        # cache for backward pass
         self.y_real = y_real
-        self.inputs = inputs
+        self.input = input
+
+        # compute & return negative log likelihood
+        return -np.log(np.clip(np.sum(y_real * input, axis=1), 1e-7, 1-1e-7))
 
     def backward(self):
-        self.dLoss_dInputs = - self.y_real / self.inputs
-
+        # compute & return dLoss_dInput
+        return - self.y_real / np.clip(self.input, 1e-7, None) # prevents exploding outputs (due to unnormalized/large inputs)

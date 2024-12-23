@@ -1,4 +1,4 @@
-from lib.Layer import Dense
+from lib.Layers import Dense
 import numpy as np
 
 
@@ -25,7 +25,13 @@ class Regularizer:
 
     def backward(self, layer: Dense):
         raise NotImplementedError
-
+    
+    @staticmethod
+    def create(name: str) -> "Regularizer":
+        if name.lower() == 'l1': return L1()
+        if name.lower() == 'l2': return L2()
+        raise ValueError(f"Regularizer {name} not supported.")
+    
 
 class L1(Regularizer):
     def __init__(self, _lambda1=5e-7, _lambda2=5e-7):
