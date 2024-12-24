@@ -20,11 +20,11 @@ class CategoricalCrossEntropy(Loss):
         
         # cache for backward pass
         self.y_real = y_real
-        self.input = input
+        self.input = np.clip(input, 1e-7, 1-1e-7)
 
         # compute & return negative log likelihood
-        return -np.log(np.clip(np.sum(y_real * input, axis=1), 1e-7, 1-1e-7))
+        return -np.sum(y_real * np.log(self.input), axis=1)
 
     def backward(self):
         # compute & return dLoss_dInput
-        return - self.y_real / np.clip(self.input, 1e-7, None) # prevents exploding outputs (due to unnormalized/large inputs)
+        return - self.y_real / self.input # prevents exploding outputs (due to unnormalized/large inputs)
