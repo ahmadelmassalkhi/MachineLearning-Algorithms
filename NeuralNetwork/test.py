@@ -8,7 +8,7 @@ _model = model(lib.Layers.Flatten(),
                lib.Layers.Dense(128, activation='relu', regularizer='l2'),
                lib.Layers.Dropout(0.5),
                lib.Layers.Dense(10, activation='softmax'))
-_model.compile(optimizer='adam', loss='categoricalcrossentropy')
+_model.compile(optimizer='adam', loss='categorical_crossentropy')
 
 
 ''' LOAD DATASET '''
