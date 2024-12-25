@@ -36,3 +36,13 @@ class Softmax(Activation):
     
     def backward(self, dLoss_dOutput):
         return self.output * (dLoss_dOutput - np.sum(dLoss_dOutput * self.output, axis=1, keepdims=True))
+    
+
+class Sigmoid(Activation):
+    def forward(self, X):
+        self.output = 1 / (1 + np.exp(-X)) # cache for backward pass
+        return self.output
+    
+    def backward(self, dLoss_dOutput):
+        # compute & return dLoss_dInput
+        return dLoss_dOutput * self.output * (1 - self.output)
