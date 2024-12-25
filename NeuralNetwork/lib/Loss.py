@@ -24,8 +24,8 @@ class CategoricalCrossEntropy(Loss):
         self.prediction = np.clip(prediction, 1e-7, 1-1e-7)
 
         # compute & return negative log likelihood
-        return -np.sum(real * np.log(self.prediction), axis=1)
-
+        return np.mean(- real * np.log(self.prediction))
+        
     def backward(self):
         # compute & return dLoss_dprediction
         return - self.real / self.prediction # prevents exploding outputs (due to unnormalized/large inputs)
@@ -38,7 +38,7 @@ class BinaryCrossEntropy(Loss):
         self.prediction = np.clip(prediction, 1e-7, 1 - 1e-7)
 
         # Compute and return the negative log likelihood
-        return np.sum(-real * np.log(self.prediction) - (1 - real) * np.log(1 - self.prediction), axis=1)
+        return np.mean(-real * np.log(self.prediction) - (1 - real) * np.log(1 - self.prediction))
 
     def backward(self):
         # Compute gradient dLoss/dPrediction

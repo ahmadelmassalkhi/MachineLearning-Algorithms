@@ -27,7 +27,7 @@ class model:
     
     def evaluate(self, x_test, y_test):
         predictions = self.predict(x_test)
-        loss = np.average(self.loss.forward(predictions, y_test))
+        loss = self.loss.forward(predictions, y_test)
         accuracy = np.mean(np.argmax(predictions, axis=1) == y_test)
         return loss, accuracy
 
@@ -40,7 +40,7 @@ class model:
             output = layer.forward(output)
 
         # evaluate model prediction
-        loss = np.average(self.loss.forward(output, y_train))
+        loss = self.loss.forward(output, y_train)
         accuracy = np.mean(np.argmax(output, axis=1) == y_train)
         
         # backward pass
