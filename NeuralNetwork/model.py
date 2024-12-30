@@ -3,7 +3,7 @@ import lib
 import lib.Loss
 import lib.Layers
 import lib.Optimizers
-
+import pickle
 
 class model:
     def __init__(self, *layers:lib.Layers.Layer):
@@ -84,4 +84,25 @@ class model:
         return total_loss / epochs, total_acc / epochs
 
 
+    def save(self, name:str):
+        """Saves the model as a .keras file"""
+        if not name.endswith(".keras"):
+            name += ".keras"
+        with open(name, "wb") as f:
+            pickle.dump(self, f)
+        print(f"Model saved as {name}")
 
+
+    @staticmethod
+    def load(name:str):
+        """Loads a model from a .keras file"""
+        if not name.endswith(".keras"):
+            name += ".keras"
+        try:
+            with open(name, "rb") as f:
+                loaded_model = pickle.load(f)
+                print(f"Model loaded from {name}")
+                return loaded_model
+        except Exception as e:
+            print(e)
+            return None
