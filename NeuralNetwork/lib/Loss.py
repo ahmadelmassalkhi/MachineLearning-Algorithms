@@ -10,6 +10,8 @@ class Loss:
     @staticmethod
     def create(name: str) -> "Loss":
         if name.lower() == 'categorical_crossentropy': return CategoricalCrossEntropy()
+        if name.lower() == 'binary_crossentropy': return BinaryCrossEntropy()
+        if name.lower() in ['mse', 'mean_squarederror']: return MeanSquaredError()
         raise ValueError(f"Loss function {name} not supported.")
 
 
