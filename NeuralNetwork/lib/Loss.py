@@ -16,8 +16,12 @@ class Loss:
 class CategoricalCrossEntropy(Loss):
     def forward(self, prediction, real):
         # ensure one hot encoding
-        if real.shape != prediction.shape:
-            real = np.eye(prediction.shape[1])[real]
+        try:
+            if real.shape != prediction.shape:
+                real = np.eye(prediction.shape[1])[real]
+        except Exception as e:
+            print(e)
+            raise ValueError(f"Incompatible shapes: {real.shape} and {prediction.shape}.")
         
         # cache for backward pass
         self.real = real
@@ -32,6 +36,10 @@ class CategoricalCrossEntropy(Loss):
 
 class BinaryCrossEntropy(Loss):
     def forward(self, prediction, real):
+        # Ensure shapes match for element-wise operations
+        if real.shape != prediction.shape:
+            raise ValueError(f"Incompatible shapes: {real.shape} and {prediction.shape}.")
+
         # Cache for backward pass
         self.real = real
         self.prediction = np.clip(prediction, 1e-7, 1 - 1e-7)
@@ -48,7 +56,7 @@ class MeanSquaredError(Loss):
     def forward(self, prediction, real):
         # Ensure shapes match for element-wise operations
         if real.shape != prediction.shape:
-            real = real.reshape(prediction.shape)
+            raise ValueError(f"Incompatible shapes: {real.shape} and {prediction.shape}.")
 
         # Cache for backward pass
         self.real = real
