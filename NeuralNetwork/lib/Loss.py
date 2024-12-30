@@ -2,7 +2,7 @@ import numpy as np
 
 
 class Loss:
-    def forward(self, prediction, real):
+    def forward(self, prediction:np.ndarray, real:np.ndarray):
         raise NotImplementedError
     def backward(self):
         raise NotImplementedError
@@ -14,7 +14,7 @@ class Loss:
 
 
 class CategoricalCrossEntropy(Loss):
-    def forward(self, prediction, real):
+    def forward(self, prediction:np.ndarray, real:np.ndarray):
         # ensure one hot encoding
         try:
             if real.shape != prediction.shape:
@@ -35,7 +35,7 @@ class CategoricalCrossEntropy(Loss):
         return - self.real / self.prediction 
 
 class BinaryCrossEntropy(Loss):
-    def forward(self, prediction, real):
+    def forward(self, prediction:np.ndarray, real:np.ndarray):
         # Ensure shapes match for element-wise operations
         if real.shape != prediction.shape:
             raise ValueError(f"Incompatible shapes: {real.shape} and {prediction.shape}.")
@@ -53,7 +53,7 @@ class BinaryCrossEntropy(Loss):
 
 
 class MeanSquaredError(Loss):
-    def forward(self, prediction, real):
+    def forward(self, prediction:np.ndarray, real:np.ndarray):
         # Ensure shapes match for element-wise operations
         if real.shape != prediction.shape:
             raise ValueError(f"Incompatible shapes: {real.shape} and {prediction.shape}.")
