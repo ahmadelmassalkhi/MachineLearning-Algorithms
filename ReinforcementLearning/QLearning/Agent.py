@@ -17,10 +17,16 @@ class Agent:
             return np.random.randint(self.action_size)  # Explore
         return self.q_table.best_action(state)  # Exploit
 
-    def update_q_value(self, state, action, reward, next_state, done):
-        best_next_action = self.q_table.best_action(next_state)
-        target = reward + (0 if done else self.gamma * self.q_table.get(next_state, best_next_action))
-        new_value = (1 - self.alpha) * self.q_table.get(state, action) + self.alpha * target
+    def update_q_value(self, state: int, action: int, reward: float, next_state: int, done: bool):
+        # Get the best action for the next state
+        best_action = self.q_table.best_action(next_state)
+        
+        # Calculate the new Q-value
+        current_q = self.q_table.get(state, action)
+        next_q = self.q_table.get(next_state, best_action) if not done else 0
+        new_value = (1 - self.alpha) * current_q + self.alpha * (reward + self.gamma * next_q)
+        
+        # Update the Q-table with the new value
         self.q_table.update(state, action, new_value)
 
     def decay_epsilon(self):
